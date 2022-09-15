@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 
 @objc(ChartXAxisRenderer)
@@ -373,6 +374,46 @@ open class XAxisRenderer: NSObject, AxisRenderer
         }
     }
     
+    open func renderBellowGridLines(context: CGContext)
+    {
+        guard
+            let transformer = self.transformer,
+            axis.isEnabled,
+            axis.isDrawBellowGridLinesEnabled
+            else { return }
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        //context.clip(to: self.gridClippingRect)
+        
+        context.setShouldAntialias(axis.gridAntialiasEnabled)
+        context.setStrokeColor(axis.bellowGridColor.cgColor)
+        context.setLineWidth(axis.gridLineWidth)
+//        context.setStrokeColor(UIColor.red.cgColor)
+//
+//        context.setLineWidth(5)
+
+        context.setLineCap(axis.gridLineCap)
+        
+        context.setLineDash(phase: 0.0, lengths: [])
+        
+        let valueToPixelMatrix = transformer.valueToPixelMatrix
+        
+        var position = CGPoint.zero
+        
+        let entries = axis.entries
+        
+        for entry in entries
+        {
+            position.x = CGFloat(entry)
+            position.y = CGFloat(entry)
+            position = position.applying(valueToPixelMatrix)
+            
+            drawBellowGridLine(context: context, x: position.x, y: position.y)
+        }
+    }
+    
     @objc open var gridClippingRect: CGRect
     {
         var contentRect = viewPortHandler.contentRect
@@ -389,6 +430,17 @@ open class XAxisRenderer: NSObject, AxisRenderer
         context.beginPath()
         context.move(to: CGPoint(x: x, y: viewPortHandler.contentTop))
         context.addLine(to: CGPoint(x: x, y: viewPortHandler.contentBottom))
+        context.strokePath()
+    }
+    
+    @objc open func drawBellowGridLine(context: CGContext, x: CGFloat, y: CGFloat)
+    {
+        guard x >= viewPortHandler.offsetLeft && x <= viewPortHandler.chartWidth else { return }
+
+        let y = viewPortHandler.contentBottom
+        context.beginPath()
+        context.move(to: CGPoint(x: x, y: y))
+        context.addLine(to: CGPoint(x: x, y: y + axis.bellowGridLineHeight))
         context.strokePath()
     }
     

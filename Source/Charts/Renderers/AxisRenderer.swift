@@ -28,6 +28,9 @@ public protocol AxisRenderer: Renderer {
 
     /// Draws the grid lines belonging to the axis.
     func renderGridLines(context: CGContext)
+    
+    /// Draws the grid lines bellowing to the axis.
+    func renderBellowGridLines(context: CGContext)
 
     /// Draws the line that goes alongside the axis.
     func renderAxisLine(context: CGContext)

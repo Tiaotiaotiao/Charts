@@ -33,12 +33,15 @@ open class AxisBase: ComponentBase
     @objc open var axisLineDashLengths: [CGFloat]!
     
     @objc open var gridColor = NSUIColor.gray.withAlphaComponent(0.9)
+    @objc open var bellowGridColor = NSUIColor.gray.withAlphaComponent(0.9)
+    @objc open var bellowGridLineHeight = CGFloat(6.0)
     @objc open var gridLineWidth = CGFloat(0.5)
     @objc open var gridLineDashPhase = CGFloat(0.0)
     @objc open var gridLineDashLengths: [CGFloat]!
     @objc open var gridLineCap = CGLineCap.butt
     
     @objc open var drawGridLinesEnabled = true
+    @objc open var drawBellowGridLinesEnabled = true
     @objc open var drawAxisLineEnabled = true
     
     /// flag that indicates of the labels of this axis should be drawn or not
@@ -71,6 +74,8 @@ open class AxisBase: ComponentBase
     ///
     /// **default**: true
     @objc open var drawGridLinesBehindDataEnabled = true
+    
+    @objc open var drawGridLinesBellowDataEnabled = true
 
     /// the flag can be used to turn off the antialias for grid lines
     @objc open var gridAntialiasEnabled = true
@@ -172,7 +177,8 @@ open class AxisBase: ComponentBase
     }
     
     @objc open var isDrawGridLinesEnabled: Bool { return drawGridLinesEnabled }
-    
+    @objc open var isDrawBellowGridLinesEnabled: Bool { return drawBellowGridLinesEnabled }
+
     @objc open var isDrawAxisLineEnabled: Bool { return drawAxisLineEnabled }
     
     @objc open var isDrawLabelsEnabled: Bool { return drawLabelsEnabled }

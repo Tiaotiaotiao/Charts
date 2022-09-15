@@ -104,7 +104,12 @@ open class BarLineScatterCandleBubbleRenderer: NSObject, DataRenderer
             let high = chart.highestVisibleX
             
             let entryFrom = dataSet.entryForXValue(low, closestToY: .nan, rounding: .down)
-            let entryTo = dataSet.entryForXValue(high, closestToY: .nan, rounding: .up)
+            var entryTo = dataSet.entryForXValue(high, closestToY: .nan, rounding: .up)
+            //TODO: 跳跳修改 避免最后一个获取不到的情况 这种情况时外部设置了x轴的最大值超过了最后一个点的x值
+            if entryTo == nil {
+                let count = dataSet.entryCount;
+                entryTo = dataSet.entryForIndex(count - 1)
+            }
             
             self.min = entryFrom == nil ? 0 : dataSet.entryIndex(entry: entryFrom!)
             self.max = entryTo == nil ? 0 : dataSet.entryIndex(entry: entryTo!)
@@ -134,7 +139,10 @@ extension BarLineScatterCandleBubbleRenderer.XBounds: Sequence {
         private var iterator: IndexingIterator<ClosedRange<Int>>
         
         fileprivate init(min: Int, max: Int) {
-            self.iterator = (min...max).makeIterator()
+            let realMin = min < max ? min : max
+            let realMax = max > min ? max : min
+
+            self.iterator = (realMin...max).makeIterator()
         }
         
         public mutating func next() -> Int? {

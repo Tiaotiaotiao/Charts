@@ -47,6 +47,8 @@ open class Highlight: NSObject
     /// the y-position (pixels) on which this highlight object was last drawn
     @objc open var drawY: CGFloat = 0.0
     
+    open var curHighlight: Bool = false
+
     public override init()
     {
         super.init()

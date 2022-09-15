@@ -770,8 +770,13 @@ open class LineChartRenderer: LineRadarRenderer
             {
                 continue
             }
-
-            context.setStrokeColor(set.highlightColor.cgColor)
+            
+            if high.curHighlight == true {
+                context.setStrokeColor(set.highlightColor.cgColor)
+            } else {
+                context.setStrokeColor(UIColor.clear.cgColor)
+            }
+                
             context.setLineWidth(set.highlightLineWidth)
             if set.highlightLineDashLengths != nil
             {

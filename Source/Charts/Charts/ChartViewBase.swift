@@ -134,6 +134,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
+    
+    @objc open var markerView: BalloonMarkerView?
 
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
@@ -196,6 +198,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         lastHighlighted = nil
     
         setNeedsDisplay()
+    }
+    
+    @objc open func clearHighlighted()
+    {
+        highlighted.removeAll()
+        lastHighlighted = nil
+        markerView?.removeFromSuperview()
     }
     
     /// Removes all DataSets (and thereby Entries) from the chart. Does not set the data object to nil. Also refreshes the chart by calling setNeedsDisplay().
@@ -464,6 +473,38 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         setNeedsDisplay()
     }
     
+    /// Highlights the value selected by touch gesture.
+    @objc open func highlightValues(_ highlights: [Highlight]?, callDelegate: Bool)
+    {
+        var high = highlights
+        guard
+            let h = high?.count
+//            let entry = data?.entry(for: h[1])
+            else
+        {
+                high = nil
+                highlighted.removeAll(keepingCapacity: false)
+                if callDelegate
+                {
+                    delegate?.chartValueNothingSelected?(self)
+                }
+                setNeedsDisplay()
+                return
+        }
+
+        // set the indices to highlight
+        highlighted = high!
+        
+//        if callDelegate
+//        {
+//            // notify the listener
+//            delegate?.chartValueSelected?(self, entry: entry, highlight: h)
+//        }
+
+        // redraw the chart
+        setNeedsDisplay()
+    }
+    
     /// - Returns: The Highlight object (contains x-index and DataSet index) of the
     /// selected value at the given touch point inside the Line-, Scatter-, or
     /// CandleStick-Chart.
@@ -477,6 +518,17 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         
         return self.highlighter?.getHighlight(x: pt.x, y: pt.y)
     }
+    
+    @objc open func getHighlightsByTouchPoint(_ pt: CGPoint) -> [Highlight]?
+    {
+        guard data != nil else
+        {
+            Swift.print("Can't select by touch. No data set.")
+            return nil
+        }
+        
+        return self.highlighter?.getHighlights(x: pt.x, y: pt.y)
+    }
 
     /// The last value that was highlighted via touch.
     @objc open var lastHighlighted: Highlight?
@@ -488,11 +540,54 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         // if there is no marker view or drawing marker is disabled
         guard
-            let marker = marker,
+            //let marker = marker,
+            let markerView = markerView,
             isDrawMarkersEnabled,
-            valuesToHighlight()
+            valuesToHighlight(),
+            highlighted.count != 0,
+            let curHight = lastHighlighted
             else { return }
         
+//        let e = data?.entry(for: highlighted[0])
+//        let pos = getMarkerPosition(highlight: highlighted[0])
+        
+        var curPoint: CGPoint = CGPoint()
+
+        var points: [CGPoint] = []
+        var es: [ChartDataEntry] = []
+
+        for highlight in highlighted {
+            guard
+                let set = data?[highlight.dataSetIndex],
+                let e = data?.entry(for: highlight)
+                else { continue }
+            
+            let entryIndex = set.entryIndex(entry: e)
+            guard entryIndex <= Int(Double(set.entryCount) * chartAnimator.phaseX) else { continue }
+
+            let pos = getMarkerPosition(highlight: highlight)
+
+            // Current selected point
+            if curHight.isEqual(highlight) {
+                curPoint = pos
+            }
+            
+            // check bounds
+            guard viewPortHandler.isInBounds(x: pos.x, y: pos.y) else { continue }
+            
+            points.append(pos)
+            es.append(e)
+        }
+        
+        if markerView.superview == nil {
+            self.addSubview(markerView)
+        }
+        
+        // update data
+        markerView.selPoint = curPoint
+        markerView.updateValues(values: points, entrys: es)
+    
+        /*
         for highlight in highlighted
         {
             guard
@@ -514,6 +609,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             // draw the marker
             marker.draw(context: context, point: pos)
         }
+         */
     }
     
     /// - Returns: The actual position in pixels of the MarkerView for the given Entry in the given DataSet.

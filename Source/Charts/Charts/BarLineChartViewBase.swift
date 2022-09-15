@@ -248,6 +248,17 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         // if highlighting is enabled
         if (valuesToHighlight())
         {
+            for high in highlighted
+            {
+                high.curHighlight = false;
+                
+                guard let cur = lastHighlighted
+                else { continue }
+                
+                if cur.isEqual(high) {
+                    high.curHighlight = true;
+                }
+            }
             renderer.drawHighlighted(context: context, indices: highlighted)
         }
         
@@ -274,6 +285,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         leftYAxisRenderer.renderAxisLabels(context: context)
         rightYAxisRenderer.renderAxisLabels(context: context)
 
+        if xAxis.drawGridLinesBellowDataEnabled
+        {
+            xAxisRenderer.renderBellowGridLines(context: context)
+        }
+        
         if clipValuesToContentEnabled
         {
             context.saveGState()
@@ -541,17 +557,31 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             if !isHighLightPerTapEnabled { return }
             
             let h = getHighlightByTouchPoint(recognizer.location(in: self))
-            
+
             if h === nil || h == self.lastHighlighted
             {
                 lastHighlighted = nil
-                highlightValue(nil, callDelegate: true)
+                //highlightValue(nil, callDelegate: true)
             }
             else
             {
                 lastHighlighted = h
-                highlightValue(h, callDelegate: true)
+                //highlightValue(h, callDelegate: true)
             }
+            
+            let hs = getHighlightsByTouchPoint(recognizer.location(in: self))
+            
+            if hs == nil
+            {
+                lastHighlighted = nil
+                highlightValues(nil, callDelegate: true)
+            }
+            else
+            {
+                highlightValues(hs, callDelegate: true)
+            }
+            
+//            delegate?.chartValueSelected?(self, entry: entry, highlight: h)
         }
     }
     
@@ -761,14 +791,17 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
             else if isHighlightPerDragEnabled
             {
-                let h = getHighlightByTouchPoint(recognizer.location(in: self))
-                
+                //let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                let hs = getHighlightsByTouchPoint(recognizer.location(in: self))
+                let h = hs?.first
+
                 let lastHighlighted = self.lastHighlighted
                 
                 if h != lastHighlighted
                 {
                     self.lastHighlighted = h
-                    self.highlightValue(h, callDelegate: true)
+                    //self.highlightValue(h, callDelegate: true)
+                    self.highlightValues(hs, callDelegate: true)
                 }
             }
         }

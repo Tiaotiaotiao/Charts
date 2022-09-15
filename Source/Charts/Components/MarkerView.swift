@@ -58,6 +58,11 @@ open class MarkerView: NSUIView, Marker
         // Do nothing here...
     }
     
+    open func refreshContents(entrys: [ChartDataEntry], highlight: Highlight)
+    {
+        // Do nothing here...
+    }
+    
     open func draw(context: CGContext, point: CGPoint)
     {
         let offset = self.offsetForDrawing(atPoint: point)

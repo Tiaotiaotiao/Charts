@@ -180,6 +180,11 @@ open class YAxisRenderer: NSObject, AxisRenderer
         }
     }
     
+    open func renderBellowGridLines(context: CGContext)
+    {
+       
+    }
+    
     @objc open var gridClippingRect: CGRect
     {
         var contentRect = viewPortHandler.contentRect
