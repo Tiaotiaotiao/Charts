@@ -70,12 +70,17 @@ open class BalloonMarkerView: UIView {
         points = values
         dataEntrys = entrys;
         
+        circleView1.alpha = 0;
+        circleView2.alpha = 0;
+        
         guard entrys.count > 0 else { return }
         
         let typeStr1 = typeNames?.first
         let e1 = entrys[0]
         
         valueLbl1.text = String(format: "%@%.0lf", typeStr1 ?? "", e1.y)
+        valueLbl1.sizeToFit();
+        circleView1.alpha = 1.0;
         
         guard entrys.count > 1 else { return }
 
@@ -83,7 +88,6 @@ open class BalloonMarkerView: UIView {
         let e2 = entrys[1]
         valueLbl2.text = String(format:  "%@%.0lf", typeStr2 ?? "", e2.y)
         
-        valueLbl1.sizeToFit();
         valueLbl2.sizeToFit();
     }
     
@@ -97,7 +101,11 @@ open class BalloonMarkerView: UIView {
         }
         
         let w = valueLbl1.bounds.size.width > valueLbl2.bounds.size.width ? valueLbl1.bounds.size.width : valueLbl2.bounds.size.width
-        let h = rate(42)
+        var h = rate(42)
+        
+        if (circleView2.alpha == 0) {
+            h = rate(28);
+        }
         
         let circleTop = rate(11)
         let circleH = circleH()
