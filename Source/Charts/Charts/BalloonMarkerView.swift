@@ -89,6 +89,7 @@ open class BalloonMarkerView: UIView {
         valueLbl2.text = String(format:  "%@%.0lf", typeStr2 ?? "", e2.y)
         
         valueLbl2.sizeToFit();
+        circleView2.alpha = 1.0;
     }
     
     //MARK: Private
@@ -103,7 +104,9 @@ open class BalloonMarkerView: UIView {
         let w = valueLbl1.bounds.size.width > valueLbl2.bounds.size.width ? valueLbl1.bounds.size.width : valueLbl2.bounds.size.width
         var h = rate(42)
         
-        if (circleView2.alpha == 0) {
+        let eCount = dataEntrys?.count ?? 0
+        
+        if (eCount <= 1) {
             h = rate(28);
         }
         
