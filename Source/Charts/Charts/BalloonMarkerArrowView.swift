@@ -9,6 +9,12 @@ import Foundation
 import CoreGraphics
 
 open class BalloonMarkerArrowView: UIView {
+    @objc open var fillColor: UIColor? {
+        didSet {
+            self.setNeedsDisplay();
+        }
+    }
+    
     //MARK: - Life circle
     override public init(frame :CGRect) {
         super.init(frame: frame)
@@ -46,7 +52,10 @@ open class BalloonMarkerArrowView: UIView {
         context.addLine(to: CGPoint(x: size.width * 0.5, y: size.height))
         
         context.addLine(to: CGPoint(x: size.width, y: 0))
-        context.setFillColor(UIColor.white.cgColor)
+        
+        let color = fillColor ?? UIColor.white
+ 
+        context.setFillColor(color.cgColor)
         context.fillPath()
         
         UIGraphicsPopContext()
