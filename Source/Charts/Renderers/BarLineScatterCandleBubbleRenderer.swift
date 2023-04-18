@@ -37,6 +37,8 @@ open class BarLineScatterCandleBubbleRenderer: NSObject, DataRenderer
 
     open func drawExtras(context: CGContext) { }
 
+    //open func drawHighlightedCircle(context: CGContext, indices: [Highlight]) { }
+    
     open func drawHighlighted(context: CGContext, indices: [Highlight]) { }
 
     /// Checks if the provided entry object is in bounds for drawing considering the current animation phase.

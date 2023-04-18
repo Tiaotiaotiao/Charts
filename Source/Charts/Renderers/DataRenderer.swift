@@ -32,6 +32,8 @@ public protocol DataRenderer: Renderer
 
     func drawExtras(context: CGContext)
 
+    //func drawHighlightedCircle(context: CGContext, indices: [Highlight])
+    
     /// Draws all highlight indicators for the values that are currently highlighted.
     ///
     /// - Parameters:

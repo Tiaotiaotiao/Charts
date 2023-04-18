@@ -16,6 +16,17 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     /// the x value
     @objc open var x = 0.0
     
+    /// For selected draw usage
+    @objc open var color: UIColor? = .clear
+    
+    /// For selected draw usage
+    @objc open var typeName: String? = ""
+    
+    /// For selected draw dash usage
+    @objc open var dash: Bool = false
+    
+    open var position: CGPoint? = CGPoint()
+    
     public required init()
     {
         super.init()

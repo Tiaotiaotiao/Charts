@@ -119,6 +119,12 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     /// `true` if drawing circles for this DataSet is enabled, `false` ifnot
     open var isDrawCirclesEnabled: Bool { return drawCirclesEnabled }
     
+    /// If true, drawing circles while highligh is enabled
+    open var drawHighlightCirclesEnabled = false
+    
+    /// `true` if drawing circles for this DataSet while highlight is enabled, `false` ifnot
+    open var isDrawHighlightCirclesEnabled: Bool { return drawHighlightCirclesEnabled }
+    
     /// The color of the inner circle (the circle-hole).
     open var circleHoleColor: NSUIColor? = NSUIColor.white
     

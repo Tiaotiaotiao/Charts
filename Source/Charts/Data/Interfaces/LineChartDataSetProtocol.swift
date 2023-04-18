@@ -61,6 +61,12 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     /// `true` if drawing circles for this DataSet is enabled, `false` ifnot
     var isDrawCirclesEnabled: Bool { get }
     
+    /// If true, drawing circles while highligh is enabled
+    var drawHighlightCirclesEnabled: Bool { get set }
+    
+    /// `true` if drawing circles for this DataSet while highlight is enabled, `false` ifnot
+    var isDrawHighlightCirclesEnabled: Bool { get }
+    
     /// The color of the inner circle (the circle-hole).
     var circleHoleColor: NSUIColor? { get set }
     

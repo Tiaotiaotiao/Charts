@@ -151,11 +151,11 @@ open class BalloonMarkerView: UIView {
         valueLbl2.frame = CGRect(x:valueLbl1.frame.minX, y:circleView2.frame.midY - lblH * 0.5, width:w, height:lblH)
     }
     
-    func rate(_ x: CGFloat) -> CGFloat {
-        let res = x * min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height) / 375
-        
-        return res
-    }
+//    func rate(_ x: CGFloat) -> CGFloat {
+//        let res = x * min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height) / 375
+//
+//        return res
+//    }
     
     func circleH() -> CGFloat {
         return rate(4)

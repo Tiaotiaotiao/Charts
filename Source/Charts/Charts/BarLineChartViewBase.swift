@@ -259,6 +259,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     high.curHighlight = true;
                 }
             }
+            
             renderer.drawHighlighted(context: context, indices: highlighted)
         }
         
@@ -308,7 +309,12 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
         drawDescription(in: context)
         
-        drawMarkers(context: context)
+        if isDrawMarkers1Enabled {
+            drawMarkers1(context: context)
+        }
+        else {
+            drawMarkers(context: context)
+        }
     }
     
     private var _autoScaleLastLowestVisibleX: Double?

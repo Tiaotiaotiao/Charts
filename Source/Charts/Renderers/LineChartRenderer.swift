@@ -803,6 +803,67 @@ open class LineChartRenderer: LineRadarRenderer
             
             // draw the lines
             drawHighlightLines(context: context, point: pt, set: set)
+            
+            // Hok custom usage by tiaotiao
+            if !set.isDrawHighlightCirclesEnabled
+            {
+                continue
+            }
+            
+            let circleRadius = set.circleRadius
+            let circleDiameter = circleRadius * 2.0
+            let circleHoleRadius = set.circleHoleRadius
+            let circleHoleDiameter = circleHoleRadius * 2.0
+            
+            let drawCircleHole = set.isDrawCircleHoleEnabled &&
+            circleHoleRadius < circleRadius &&
+            circleHoleRadius > 0.0
+            let drawTransparentCircleHole = drawCircleHole &&
+            (set.circleHoleColor == nil ||
+             set.circleHoleColor == NSUIColor.clear)
+            
+            context.setFillColor(set.getCircleColor(atIndex: 0)!.cgColor)
+            
+            var rect: CGRect = CGRectZero;
+            
+            rect.origin.x = pt.x - circleRadius
+            rect.origin.y = pt.y - circleRadius
+            rect.size.width = circleDiameter
+            rect.size.height = circleDiameter
+                        
+            if drawTransparentCircleHole
+            {
+                // Begin path for circle with hole
+                context.beginPath()
+                context.addEllipse(in: rect)
+                
+                // Cut hole in path
+                rect.origin.x = pt.x - circleHoleRadius
+                rect.origin.y = pt.y - circleHoleRadius
+                rect.size.width = circleHoleDiameter
+                rect.size.height = circleHoleDiameter
+                context.addEllipse(in: rect)
+                
+                // Fill in-between
+                context.fillPath(using: .evenOdd)
+            }
+            else
+            {
+                context.fillEllipse(in: rect)
+                
+                if drawCircleHole
+                {
+                    context.setFillColor(set.circleHoleColor!.cgColor)
+                    
+                    // The hole rect
+                    rect.origin.x = pt.x - circleHoleRadius
+                    rect.origin.y = pt.y - circleHoleRadius;
+                    rect.size.width = circleHoleDiameter
+                    rect.size.height = circleHoleDiameter
+                    
+                    context.fillEllipse(in: rect)
+                }
+            }
         }
         
         context.restoreGState()

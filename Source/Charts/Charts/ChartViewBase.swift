@@ -127,16 +127,24 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     @objc open var drawMarkers = true
-    
+    @objc open var drawMarkers1 = false
+
     /// - Returns: `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     @objc open var isDrawMarkersEnabled: Bool { return drawMarkers }
+    
+    /// - Returns: `true` if drawing the marker is enabled when tapping on values
+    /// (use the `marker1` property to specify a marker)
+    /// priority higher than marker
+    @objc open var isDrawMarkers1Enabled: Bool { return drawMarkers1 }
     
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
     
     @objc open var markerView: BalloonMarkerView?
-
+    
+    @objc open var markerView1: BalloonMarkerView1?
+    
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
     
@@ -205,6 +213,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         highlighted.removeAll()
         lastHighlighted = nil
         markerView?.removeFromSuperview()
+        
+        markerView1?.removeFromSuperview()
     }
     
     /// Removes all DataSets (and thereby Entries) from the chart. Does not set the data object to nil. Also refreshes the chart by calling setNeedsDisplay().
@@ -548,14 +558,11 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             let curHight = lastHighlighted
             else { return }
         
-//        let e = data?.entry(for: highlighted[0])
-//        let pos = getMarkerPosition(highlight: highlighted[0])
-        
         var curPoint: CGPoint = CGPoint()
-
+        
         var points: [CGPoint] = []
         var es: [ChartDataEntry] = []
-
+        
         for highlight in highlighted {
             guard
                 let set = data?[highlight.dataSetIndex],
@@ -610,6 +617,64 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             marker.draw(context: context, point: pos)
         }
          */
+    }
+    
+    /// draws all MarkerViews1 on the highlighted positions
+    internal func drawMarkers1(context: CGContext)
+    {
+        // if there is no marker view or drawing marker is disabled
+        guard
+            let markerView = markerView1,
+            isDrawMarkersEnabled,
+            valuesToHighlight(),
+            highlighted.count != 0,
+            let curHight = lastHighlighted
+            else { return }
+                
+        var curPoint: CGPoint = CGPoint()
+
+        //var points: [CGPoint] = []
+        var es: [ChartDataEntry] = []
+
+        for highlight in highlighted {
+            guard
+                let set = data?[highlight.dataSetIndex],
+                let e = data?.entry(for: highlight),
+                let set1 = data?[highlight.dataSetIndex] as? LineChartDataSetProtocol
+                else { continue }
+            
+            let entryIndex = set.entryIndex(entry: e)
+            guard entryIndex <= Int(Double(set.entryCount) * chartAnimator.phaseX) else { continue }
+            
+            let color = set1.circleHoleColor
+            let name = set1.label
+            let pos = getMarkerPosition(highlight: highlight)
+            
+            e.color = color
+            e.typeName = name
+            e.position = pos
+            e.dash = set1.lineDashLengths != nil;
+            
+            // Current selected point
+            if curHight.isEqual(highlight) {
+                curPoint = pos
+            }
+            
+            //points.append(pos)
+            es.append(e)
+        }
+        
+        es.sort(by: { e1, e2 in
+            return e1.y > e2.y
+        })
+        
+        if markerView.superview == nil {
+            self.addSubview(markerView)
+        }
+        
+        // update data
+        markerView.selPoint = curPoint
+        markerView.updateValues(entrys: es)
     }
     
     /// - Returns: The actual position in pixels of the MarkerView for the given Entry in the given DataSet.
