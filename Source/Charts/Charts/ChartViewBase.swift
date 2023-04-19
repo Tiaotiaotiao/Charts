@@ -635,7 +635,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
 
         //var points: [CGPoint] = []
         var es: [ChartDataEntry] = []
-
+        var dayValue = "";
+        
         for highlight in highlighted {
             guard
                 let set = data?[highlight.dataSetIndex],
@@ -650,10 +651,15 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             let name = set1.label
             let pos = getMarkerPosition(highlight: highlight)
             
+            
             e.color = color
             e.typeName = name
             e.position = pos
             e.dash = set1.lineDashLengths != nil;
+            
+            if dayValue.count == 0 {
+                dayValue = e.xVale;
+            }
             
             // Current selected point
             if curHight.isEqual(highlight) {
@@ -674,6 +680,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         
         // update data
         markerView.selPoint = curPoint
+        markerView.dayValue = dayValue;
         markerView.updateValues(entrys: es)
     }
     

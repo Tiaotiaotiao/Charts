@@ -25,6 +25,9 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     /// For selected draw dash usage
     @objc open var dash: Bool = false
     
+    /// For selected draw dash usage
+    @objc open var xVale: String = ""
+    
     open var position: CGPoint? = CGPoint()
     
     public required init()

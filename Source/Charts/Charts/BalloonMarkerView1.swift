@@ -13,7 +13,7 @@ protocol UIViewFrameAutoProtocol : AnyObject {
 
 struct MarkerData {
     var circleColor: UIColor?
-    var textCor: UIColor
+    var textCor: UIColor?
     var name: String
     var value: String
     var dash: Bool
@@ -25,15 +25,27 @@ open class BalloonMarkerView1: UIView {
     var dataEntrys: [ChartDataEntry]?
     var datas: Array<MarkerData>?
     
+    var dayValue: String? {
+        willSet
+        {
+            
+        }
+        didSet
+        {
+            dayLbl.text = dayValue
+        }
+    }
+    
     var nameW: CGFloat? = 0
     var valueW: CGFloat? = 0
 
     @objc open weak var chartView: ChartViewBase?
-    @objc public var textColor: UIColor? = .black
+    @objc public var textColor: UIColor? = UIColor(red: 119/255.0, green: 119/255.0, blue: 119/255.0, alpha: 1.0)
 
     //MARK: - Life circle
     override public init(frame :CGRect) {
         super.init(frame: frame)
+        
         initSubviews()
     }
     
@@ -43,6 +55,8 @@ open class BalloonMarkerView1: UIView {
     
     func initSubviews() {
         self.layer.cornerRadius = 4
+        
+        self.addSubview(dayLbl)
         
         self.addSubview(tb)
     }
@@ -59,8 +73,6 @@ open class BalloonMarkerView1: UIView {
         
         var y = rate(13)
         let itemH = rate(20)
-
-        let textColor = UIColor(red: 119/255.0, green: 119/255.0, blue: 119/255.0, alpha: 1.0)
         
         var array = Array<MarkerData>()
         
@@ -106,8 +118,8 @@ open class BalloonMarkerView1: UIView {
         valueW = valueWidth
         
         let allW = rate(22) + nameWidth + valueWidth + rate(10)
-        let allH = Double(itemH * CGFloat(entrys.count)) + tbTop() * 2
-       
+        let allH = CGRectGetMaxY(dayLbl.frame) + Double(itemH * CGFloat(entrys.count)) + tbBottom()
+        
         let selX = self.selPoint.x
         let selY = self.selPoint.y
         
@@ -126,11 +138,10 @@ open class BalloonMarkerView1: UIView {
         // 左边最小值多往左一点 因为有圆角
         let left = chart.viewPortHandler.contentLeft
         let right = chart.viewPortHandler.contentRight
-        let bottom = chart.viewPortHandler.contentBottom - rate(20)
+        let bottom = chart.viewPortHandler.contentBottom - rate(15)
         let contentH = chart.viewPortHandler.contentHeight
         
         let showMaxX = selX + self.bounds.size.width
-        let showMaxY = showY + self.bounds.size.height
 
         if showMaxX > right  {
             showX = selX - xAdd - self.bounds.size.width
@@ -138,10 +149,11 @@ open class BalloonMarkerView1: UIView {
         
         if self.bounds.size.height > contentH {
             showY = contentH * 0.5 - self.bounds.size.height * 0.5
-        } else {
-            if showMaxY > bottom {
-                showY = bottom - self.bounds.size.height
-            }
+        }
+        
+        let showMaxY = showY + self.bounds.size.height
+        if showMaxY > bottom {
+            showY = bottom - self.bounds.size.height
         }
         
         self.frame.origin.x = showX
@@ -154,15 +166,25 @@ open class BalloonMarkerView1: UIView {
     
     //MARK: Private
     
-    func tbTop() -> CGFloat {
-        return rate(4)
+    func tbBottom() -> CGFloat {
+        return rate(5)
     }
     
     func updateFrame() {
-        let y = tbTop()
-        
-        tb.frame = CGRect(x: 0, y: y, width: self.bounds.size.width, height: self.bounds.size.height - y * 2)
+        let y = CGRectGetMaxY(dayLbl.frame)
+        dayLbl.frame.size.width = self.bounds.size.width - dayLbl.frame.origin.x * 2;
+        tb.frame = CGRect(x: 0, y: y, width: self.bounds.size.width, height: self.bounds.size.height - y - tbBottom())
     }
+    
+    lazy var dayLbl: UILabel = {
+        let lbl =  UILabel(frame: CGRect(x: rate(10), y: rate(5), width: rate(50), height: rate(16)))
+        lbl.backgroundColor = UIColor.clear
+        lbl.textColor = textColor
+        lbl.textAlignment = .left
+        lbl.font = UIFont.init(name:"PingFangSC-Regular", size:rate(10))
+        
+        return lbl
+    }()
     
     lazy var tb: UITableView = {
         let tb = UITableView(frame: self.bounds, style: .plain)
