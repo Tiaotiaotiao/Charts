@@ -340,7 +340,14 @@ extension String {
             unit = "亿"
         }
         
-        let resStr = String(format: "%.2lf%@", showMoney, unit)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal;
+        // 最少展示两位小数
+        formatter.minimumFractionDigits = 0;
+        // 最多两位小数点
+        formatter.maximumFractionDigits = 2;
+        
+        let resStr = String(format: "%@%@",  formatter.string(from: NSNumber(value: showMoney)) ?? "0", unit)
         
         return resStr
     }
