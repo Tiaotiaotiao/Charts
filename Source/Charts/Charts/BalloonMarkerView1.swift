@@ -16,6 +16,7 @@ struct MarkerData {
     var textCor: UIColor?
     var name: String?
     var value: String?
+    var unit: String?
     var dash: Bool
     var isBar: Bool
 }
@@ -110,9 +111,10 @@ open class BalloonMarkerView1: UIView {
             
             itemName.append("：")
             
-            var value = String.hok_formatMoney(money: entry.y)
+            let unit = entry.unit ?? ""
+            var value = String(format: "%@%@", String.hok_formatMoney(money: entry.y), unit)
             
-            var data = MarkerData(circleColor: entry.color, textCor:textColor, name: itemName, value: value, dash:entry.dash, isBar: entry.isBar)
+            var data = MarkerData(circleColor: entry.color, textCor:textColor, name: itemName, value: value, unit:entry.unit, dash:entry.dash, isBar: entry.isBar)
             
             if circleIndex == NSNotFound && entry.dash {
                 circleIndex = index
@@ -135,11 +137,11 @@ open class BalloonMarkerView1: UIView {
         let firstEntry = entrys.first
         
         if circleIndex != NSNotFound && circleDayValue != nil {
-            let circleData = MarkerData(circleColor: nil, textCor:textColor, name: circleDayValue, value: nil, dash:false, isBar: false)
+            let circleData = MarkerData(circleColor: nil, textCor:textColor, name: circleDayValue, value: nil, unit:nil, dash:false, isBar: false)
             array.insert(circleData, at: circleIndex)
         }
         
-        var titleData = MarkerData(circleColor: nil, textCor:textColor, name: dayValue, value: nil, dash:false, isBar: false)
+        var titleData = MarkerData(circleColor: nil, textCor:textColor, name: dayValue, value: nil, unit:nil, dash:false, isBar: false)
         array.insert(titleData, at: circleIndex > 0 ? 0 : circleIndex + 2)
         
         nameW = nameWidth

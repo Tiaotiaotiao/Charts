@@ -272,4 +272,7 @@ public protocol ChartDataSetProtocol
     var drawDashDateTitle: Bool { get set }
     
     var isDrawDashDateTitle: Bool { get }
+    
+    var unit: String { get }
+    
 }

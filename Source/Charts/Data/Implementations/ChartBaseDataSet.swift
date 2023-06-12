@@ -377,7 +377,9 @@ open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
     {
         return drawDashDateTitle
     }
-
+    
+    open var unit = ""
+    
     // MARK: - NSObject
     
     open override var description: String

@@ -658,7 +658,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             e.typeName = name
             e.position = pos
             e.dash = set1.lineDashLengths != nil;
-            
+            e.unit = set1.unit
+
             if dayValue.count == 0 {
                 dayValue = e.xVale;
             }

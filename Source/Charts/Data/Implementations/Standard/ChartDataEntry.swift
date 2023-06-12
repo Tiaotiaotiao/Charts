@@ -33,6 +33,8 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     /// For selected draw bar usage
     @objc open var isBar: Bool = false
     
+    @objc open var unit: String? = ""
+
     public required init()
     {
         super.init()
