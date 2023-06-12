@@ -30,6 +30,9 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     
     open var position: CGPoint? = CGPoint()
     
+    /// For selected draw bar usage
+    @objc open var isBar: Bool = false
+    
     public required init()
     {
         super.init()

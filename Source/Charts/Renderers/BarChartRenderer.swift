@@ -99,12 +99,13 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         {
             guard let e = dataSet.entryForIndex(i) as? BarChartDataEntry else { continue }
 
-            let x = CGFloat(e.x)
+            var x = CGFloat(e.x)
+            
             let left = x - barWidthHalf
             let right = x + barWidthHalf
 
             var y = e.y
-
+            
             if containsStacks, let vals = e.yValues
             {
                 var posY = 0.0

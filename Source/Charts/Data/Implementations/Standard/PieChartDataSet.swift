@@ -78,7 +78,7 @@ open class PieChartDataSet: ChartDataSet, PieChartDataSetProtocol
 
     /// When valuePosition is OutsideSlice, indicates line color
     open var valueLineColor: NSUIColor? = NSUIColor.black
-
+    
     /// When valuePosition is OutsideSlice and enabled, line will have the same color as the slice
     open var useValueColorForLine: Bool = false
 
@@ -96,6 +96,9 @@ open class PieChartDataSet: ChartDataSet, PieChartDataSetProtocol
 
     /// When valuePosition is OutsideSlice, this allows variable line length
     open var valueLineVariableLength: Bool = true
+    
+    /// When valuePosition is OutsideSlice, indicates line middle of default 0.5
+    open var valueLineMiddleAnglePercent: CGFloat = 0.5
 
     /// the font for the slice-text labels
     open var entryLabelFont: NSUIFont? = nil

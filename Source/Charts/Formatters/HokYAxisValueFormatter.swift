@@ -99,7 +99,7 @@ open class HokYAxisValueFormatter: NSObject, AxisValueFormatter
         } else {
             var showValue = value
             var unit = ""
-            if (showValue >= 100000 && showValue < 100000000) {
+            if (showValue >= 10000 && showValue < 100000000) {
                 showValue = showValue / 10000
                 unit = "万"
             } else if (showValue >= 100000000) {

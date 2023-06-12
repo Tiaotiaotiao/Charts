@@ -636,6 +636,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         //var points: [CGPoint] = []
         var es: [ChartDataEntry] = []
         var dayValue = "";
+        var circleDayValue: String?;
+        
+        var entryIndex = NSNotFound;
         
         for highlight in highlighted {
             guard
@@ -644,13 +647,12 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
                 let set1 = data?[highlight.dataSetIndex] as? LineChartDataSetProtocol
                 else { continue }
             
-            let entryIndex = set.entryIndex(entry: e)
+            entryIndex = set.entryIndex(entry: e)
             guard entryIndex <= Int(Double(set.entryCount) * chartAnimator.phaseX) else { continue }
             
             let color = set1.circleHoleColor
             let name = set1.label
             let pos = getMarkerPosition(highlight: highlight)
-            
             
             e.color = color
             e.typeName = name
@@ -661,6 +663,10 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
                 dayValue = e.xVale;
             }
             
+            if circleDayValue == nil && set.isDrawDashDateTitle == true {
+                circleDayValue = e.xVale;
+            }
+            
             // Current selected point
             if curHight.isEqual(highlight) {
                 curPoint = pos
@@ -668,6 +674,28 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             
             //points.append(pos)
             es.append(e)
+        }
+        
+        let isCombine = data?.isKind(of: CombinedChartData.self)
+        
+        if (entryIndex != NSNotFound && isCombine == true) {
+            let combineData: CombinedChartData = data as! CombinedChartData
+            let barData = combineData.barData
+            
+            let countA = barData?.dataSets.count ?? 0
+            
+            for i in 0..<countA {
+                guard
+                    let barDataSet = barData?.dataSet(at: i) as? ChartDataSetProtocol,
+                    let barEntry = barDataSet.entryForIndex(entryIndex)
+                else {continue}
+                                
+                barEntry.color = barDataSet.colors.first
+                barEntry.typeName = barDataSet.label
+                barEntry.isBar = true
+
+                es.append(barEntry)
+            }
         }
         
         es.sort(by: { e1, e2 in
@@ -681,6 +709,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         // update data
         markerView.selPoint = curPoint
         markerView.dayValue = dayValue;
+        markerView.circleDayValue = circleDayValue;
+        
         markerView.updateValues(entrys: es)
     }
     

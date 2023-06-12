@@ -371,6 +371,13 @@ open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
         return visible
     }
     
+    open var drawDashDateTitle = false
+    
+    open var isDrawDashDateTitle: Bool
+    {
+        return drawDashDateTitle
+    }
+
     // MARK: - NSObject
     
     open override var description: String

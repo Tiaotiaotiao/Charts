@@ -376,7 +376,7 @@ open class PieChartRenderer: NSObject, DataRenderer
                 let sliceSpaceMiddleAngle = sliceSpace / labelRadius.DEG2RAD
 
                 // offset needed to center the drawn text in the slice
-                let angleOffset = (sliceAngle - sliceSpaceMiddleAngle / 2.0) / 2.0
+                let angleOffset = (sliceAngle - sliceSpaceMiddleAngle / 2.0) * dataSet.valueLineMiddleAnglePercent
 
                 angle = angle + angleOffset
 

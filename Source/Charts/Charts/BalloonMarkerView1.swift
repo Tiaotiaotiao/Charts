@@ -14,14 +14,14 @@ protocol UIViewFrameAutoProtocol : AnyObject {
 struct MarkerData {
     var circleColor: UIColor?
     var textCor: UIColor?
-    var name: String
-    var value: String
+    var name: String?
+    var value: String?
     var dash: Bool
+    var isBar: Bool
 }
 
 open class BalloonMarkerView1: UIView {
     var selPoint: CGPoint = CGPoint()
-    //var points: [CGPoint]?
     var dataEntrys: [ChartDataEntry]?
     var datas: Array<MarkerData>?
     
@@ -32,13 +32,26 @@ open class BalloonMarkerView1: UIView {
         }
         didSet
         {
-            dayLbl.text = dayValue
+            
         }
     }
     
+    var circleDayValue: String? {
+        willSet
+        {
+            
+        }
+        didSet
+        {
+
+        }
+    }
+    
+    var withBar = false
+    var contentLeft = 0.0
     var nameW: CGFloat? = 0
     var valueW: CGFloat? = 0
-
+    
     @objc open weak var chartView: ChartViewBase?
     @objc public var textColor: UIColor? = UIColor(red: 119/255.0, green: 119/255.0, blue: 119/255.0, alpha: 1.0)
 
@@ -55,9 +68,7 @@ open class BalloonMarkerView1: UIView {
     
     func initSubviews() {
         self.layer.cornerRadius = 4
-        
-        self.addSubview(dayLbl)
-        
+                
         self.addSubview(tb)
     }
     
@@ -71,23 +82,32 @@ open class BalloonMarkerView1: UIView {
             return
         }
         
-        var y = rate(13)
-        let itemH = rate(20)
+        let itemH = tbCellH()
         
         var array = Array<MarkerData>()
         
         var showWidth = rate(130)
         var nameWidth = 0.0
-
         var valueWidth = 0.0
         
         let font: UIFont! = UIFont.init(name:"PingFangSC-Regular", size:rate(10))
         
-        for entry in entrys {
+        var circleIndex = NSNotFound
+        var index = 0
+        
+        contentLeft = rate(22)
+        
+        for index in 0..<entrys.count {
+            let entry = entrys[index]
             var itemName: String = entry.typeName ?? ""
             let len = itemName.count ?? 0
             itemName = String(itemName.prefix(6))
- 
+            
+            if entry.isBar {
+                contentLeft = rate(26)
+                withBar = true
+            }
+            
             if len > 6 {
                 itemName.append("…")
             }
@@ -96,17 +116,21 @@ open class BalloonMarkerView1: UIView {
             
             var value = String.hok_formatMoney(money: entry.y)
             
-            var data = MarkerData(circleColor: entry.color, textCor:textColor, name: itemName, value: value, dash:entry.dash)
+            var data = MarkerData(circleColor: entry.color, textCor:textColor, name: itemName, value: value, dash:entry.dash, isBar: entry.isBar)
+            
+            if circleIndex == NSNotFound && entry.dash {
+                circleIndex = index
+            }
             
             array.append(data)
             
             let rect: CGRect = itemName.boundingRect(with: CGSizeMake(1000, itemH), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font : font],context:nil)
             
             let rect1: CGRect = value.boundingRect(with: CGSizeMake(1000, itemH), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font : font],context:nil)
-
-            let w = ceil(rect.size.width)
-
-            let w1 = ceil(rect1.size.width)
+            
+            let w = ceil(rect.size.width) + 1
+            
+            let w1 = ceil(rect1.size.width) + 1
             
             nameWidth = nameWidth < w ? w : nameWidth
             valueWidth = valueWidth < w1 ? w1 : valueWidth
@@ -114,11 +138,19 @@ open class BalloonMarkerView1: UIView {
         
         let firstEntry = entrys.first
         
+        if circleIndex != NSNotFound && circleDayValue != nil {
+            let circleData = MarkerData(circleColor: nil, textCor:textColor, name: circleDayValue, value: nil, dash:false, isBar: false)
+            array.insert(circleData, at: circleIndex)
+        }
+        
+        var titleData = MarkerData(circleColor: nil, textCor:textColor, name: dayValue, value: nil, dash:false, isBar: false)
+        array.insert(titleData, at: circleIndex > 0 ? 0 : circleIndex + 2)
+        
         nameW = nameWidth
         valueW = valueWidth
         
-        let allW = rate(22) + nameWidth + valueWidth + rate(10)
-        let allH = CGRectGetMaxY(dayLbl.frame) + Double(itemH * CGFloat(entrys.count)) + tbBottom()
+        let allW = contentLeft + nameWidth + valueWidth + rate(10)
+        let allH = tbTop() + Double(itemH * CGFloat(array.count)) + tbBottom()
         
         let selX = self.selPoint.x
         let selY = self.selPoint.y
@@ -142,7 +174,7 @@ open class BalloonMarkerView1: UIView {
         let contentH = chart.viewPortHandler.contentHeight
         
         let showMaxX = selX + self.bounds.size.width
-
+        
         if showMaxX > right  {
             showX = selX - xAdd - self.bounds.size.width
         }
@@ -166,25 +198,21 @@ open class BalloonMarkerView1: UIView {
     
     //MARK: Private
     
-    func tbBottom() -> CGFloat {
+    func tbTop() -> CGFloat {
         return rate(5)
     }
     
-    func updateFrame() {
-        let y = CGRectGetMaxY(dayLbl.frame)
-        dayLbl.frame.size.width = self.bounds.size.width - dayLbl.frame.origin.x * 2;
-        tb.frame = CGRect(x: 0, y: y, width: self.bounds.size.width, height: self.bounds.size.height - y - tbBottom())
+    func tbBottom() -> CGFloat {
+        return rate(8)
     }
     
-    lazy var dayLbl: UILabel = {
-        let lbl =  UILabel(frame: CGRect(x: rate(10), y: rate(5), width: rate(50), height: rate(16)))
-        lbl.backgroundColor = UIColor.clear
-        lbl.textColor = textColor
-        lbl.textAlignment = .left
-        lbl.font = UIFont.init(name:"PingFangSC-Regular", size:rate(10))
-        
-        return lbl
-    }()
+    func tbCellH() -> CGFloat {
+        return rate(20)
+    }
+    
+    func updateFrame() {
+        tb.frame = CGRect(x: 0, y: tbTop(), width: self.bounds.size.width, height: self.bounds.size.height - tbTop() - tbBottom())
+    }
     
     lazy var tb: UITableView = {
         let tb = UITableView(frame: self.bounds, style: .plain)
@@ -231,7 +259,11 @@ extension BalloonMarkerView1: UITableViewDelegate, UITableViewDataSource {
         let cout = datas?.count ?? 0
         if cout > 0 && indexPath.row < cout {
             let item = datas![indexPath.row]
+            cell?.withBar = withBar;
+            cell?.contentLeft = contentLeft;
+            
             cell?.updateUI(nameW: nameW!, valueW: valueW!)
+            
             cell?.updateData(data: item)
         }
         
@@ -239,7 +271,7 @@ extension BalloonMarkerView1: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return rate(20)
+        return tbCellH()
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -249,6 +281,9 @@ extension BalloonMarkerView1: UITableViewDelegate, UITableViewDataSource {
 }
 
 class BalloonMarkerCell: UITableViewCell {
+    open var contentLeft = 0.0
+    open var withBar = false
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         initSubviews()
@@ -257,29 +292,62 @@ class BalloonMarkerCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+        
     func initSubviews() {
+        contentLeft = rate(22)
+        
+        self.contentView.addSubview(titleLbl)
+        
         self.contentView.addSubview(circleImgView)
         self.contentView.addSubview(nameLbl)
         self.contentView.addSubview(valueLbl)
     }
     
     func updateUI(nameW: CGFloat, valueW: CGFloat) {
+        nameLbl.frame.origin.x = contentLeft
         nameLbl.frame.size.width = nameW
+        
         valueLbl.frame.size.width = valueW
         valueLbl.frame.origin.x = CGRectGetMaxX(nameLbl.frame)
     }
     
     func updateData(data: MarkerData) {
         let bgColor = data.dash ? .white : data.circleColor
-        circleImgView.layer.borderColor = data.circleColor?.cgColor
         circleImgView.backgroundColor = bgColor
+ 
+        if data.isBar == false {
+            circleImgView.frame.origin.x = withBar == false ? rate(10) : rate(11)
+            circleImgView.frame.size.width = rate(8)
+            circleImgView.frame.size.height = circleImgView.frame.size.width
+            
+            circleImgView.layer.borderColor = data.circleColor?.cgColor
+            circleImgView.layer.borderWidth = 0.75
+            circleImgView.layer.cornerRadius = circleImgView.frame.size.width * 0.5
+        } else {
+            circleImgView.frame.origin.x =  rate(10)
+            circleImgView.frame.size.width = rate(10)
+            circleImgView.frame.size.height = rate(6)
+
+            circleImgView.layer.borderColor = nil
+            circleImgView.layer.borderWidth = 0
+            circleImgView.layer.cornerRadius = 1
+        }
+        circleImgView.center.y = self.bounds.height * 0.5
         
+        titleLbl.text = data.name
         nameLbl.text = data.name
         valueLbl.text = data.value
         
+        titleLbl.textColor = data.textCor
         nameLbl.textColor = data.textCor
         valueLbl.textColor = data.textCor
+        
+        let isTitle: Bool = data.circleColor == nil || data.value == nil
+        
+        titleLbl.isHidden = !isTitle
+        circleImgView.isHidden = isTitle
+        nameLbl.isHidden = isTitle
+        valueLbl.isHidden = isTitle
     }
     
     @objc open lazy var circleImgView: UIImageView = {
@@ -290,6 +358,14 @@ class BalloonMarkerCell: UITableViewCell {
         imgView.layer.borderWidth = 0.75
         
         return imgView
+    }()
+    
+    @objc open lazy var titleLbl: UILabel = {
+        let lbl =  UILabel(frame: .zero)
+        lbl.textAlignment = .left
+        lbl.font = UIFont.init(name:"PingFangSC-Regular", size:rate(10))
+        lbl.frame = CGRect(x:  rate(10), y: rate(2), width:rate(50), height: self.bounds.height)
+        return lbl
     }()
     
     @objc open lazy var nameLbl: UILabel = {
@@ -312,10 +388,12 @@ class BalloonMarkerCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        circleImgView.center.y = self.bounds.height * 0.5
+        titleLbl.frame.size.height = self.bounds.height - titleLbl.frame.origin.y
+        titleLbl.frame.size.width = self.bounds.width - titleLbl.frame.origin.x
+        
         nameLbl.frame.size.height = self.bounds.height
+        
         valueLbl.frame.size.height = self.bounds.height
-        //circleImgView.center.y = self.bounds.height * 0.5
     }
 }
 
@@ -332,7 +410,7 @@ extension String {
         var showMoney = money
         var unit = ""
         
-        if (showMoney >= 100000 && showMoney < 100000000) {
+        if (showMoney >= 10000 && showMoney < 100000000) {
             showMoney = showMoney / 10000
             unit = "万"
         } else if (showMoney >= 100000000) {
@@ -341,11 +419,11 @@ extension String {
         }
         
         let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal;
+        formatter.numberStyle = .decimal
         // 最少展示两位小数
-        formatter.minimumFractionDigits = 0;
+        formatter.minimumFractionDigits = 0
         // 最多两位小数点
-        formatter.maximumFractionDigits = 2;
+        formatter.maximumFractionDigits = 2
         
         let resStr = String(format: "%@%@",  formatter.string(from: NSNumber(value: showMoney)) ?? "0", unit)
         

@@ -51,6 +51,9 @@ public protocol PieChartDataSetProtocol: ChartDataSetProtocol
 
     /// When valuePosition is OutsideSlice, this allows variable line length
     var valueLineVariableLength: Bool { get set }
+    
+    /// When valuePosition is OutsideSlice, indicates line middle of default 0.5
+    var valueLineMiddleAnglePercent: CGFloat { get set }
 
     /// the font for the slice-text labels
     var entryLabelFont: NSUIFont? { get set }
