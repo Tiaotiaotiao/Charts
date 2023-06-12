@@ -63,6 +63,9 @@ open class BarChartData: BarLineScatterCandleBubbleChartData
         for i in 0..<maxEntryCount
         {
             let start = fromX
+//            if i > 0 {
+//                fromX += groupSpaceWidthHalf
+//            }
             fromX += groupSpaceWidthHalf
             
             (_dataSets as! [BarChartDataSetProtocol]).forEach { set in

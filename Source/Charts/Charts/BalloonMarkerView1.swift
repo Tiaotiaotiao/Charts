@@ -108,10 +108,6 @@ open class BalloonMarkerView1: UIView {
                 withBar = true
             }
             
-            if len > 6 {
-                itemName.append("…")
-            }
-            
             itemName.append("：")
             
             var value = String.hok_formatMoney(money: entry.y)
@@ -128,9 +124,9 @@ open class BalloonMarkerView1: UIView {
             
             let rect1: CGRect = value.boundingRect(with: CGSizeMake(1000, itemH), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font : font],context:nil)
             
-            let w = ceil(rect.size.width) + 1
+            let w = ceil(rect.size.width)
             
-            let w1 = ceil(rect1.size.width) + 1
+            let w1 = ceil(rect1.size.width)
             
             nameWidth = nameWidth < w ? w : nameWidth
             valueWidth = valueWidth < w1 ? w1 : valueWidth
@@ -387,6 +383,7 @@ class BalloonMarkerCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        circleImgView.center.y = self.bounds.height * 0.5
         
         titleLbl.frame.size.height = self.bounds.height - titleLbl.frame.origin.y
         titleLbl.frame.size.width = self.bounds.width - titleLbl.frame.origin.x
