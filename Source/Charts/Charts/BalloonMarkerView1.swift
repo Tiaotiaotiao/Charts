@@ -102,7 +102,6 @@ open class BalloonMarkerView1: UIView {
             let entry = entrys[index]
             var itemName: String = entry.typeName ?? ""
             let len = itemName.count ?? 0
-            itemName = String(itemName.prefix(6))
             
             if entry.isBar {
                 contentLeft = rate(26)
