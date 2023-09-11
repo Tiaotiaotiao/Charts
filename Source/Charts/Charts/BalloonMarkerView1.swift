@@ -405,7 +405,7 @@ extension UIView: UIViewFrameAutoProtocol {
 
 extension String {
     static func hok_formatMoney(money: CGFloat) -> String {
-        var showMoney = money
+        var showMoney = fabs(money)
         var unit = ""
         
         if (showMoney >= 10000 && showMoney < 100000000) {
@@ -423,7 +423,9 @@ extension String {
         // 最多两位小数点
         formatter.maximumFractionDigits = 2
         
-        let resStr = String(format: "%@%@",  formatter.string(from: NSNumber(value: showMoney)) ?? "0", unit)
+        let resValue = (money < 0 ? -1 : 1) * showMoney
+        
+        let resStr = String(format: "%@%@",  formatter.string(from: NSNumber(value: resValue)) ?? "0", unit)
         
         return resStr
     }

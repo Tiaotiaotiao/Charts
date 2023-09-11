@@ -97,19 +97,7 @@ open class HokYAxisValueFormatter: NSObject, AxisValueFormatter
         if let block = block {
             return block(value, axis)
         } else {
-            var showValue = value
-            var unit = ""
-            if (showValue >= 10000 && showValue < 100000000) {
-                showValue = showValue / 10000
-                unit = "万"
-            } else if (showValue >= 100000000) {
-                showValue = showValue / 100000000
-                unit = "亿"
-            }
-            
-            return String(format: "%@%@", formatter?.string(from: NSNumber(floatLiteral: showValue)) ?? "", unit)
-            
-            //return formatter?.string(from: NSNumber(floatLiteral: showValue)) ?? ""
+            return String.hok_formatMoney(money: value)
         }
     }
 }
