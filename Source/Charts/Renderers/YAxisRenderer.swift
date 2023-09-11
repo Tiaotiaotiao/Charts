@@ -359,7 +359,8 @@ open class YAxisRenderer: NSObject, AxisRenderer
 
     @objc open func computeAxisValues(min: Double, max: Double)
     {
-        let yMin = min
+        var yMin = min
+        
         let yMax = max
 
         let labelCount = axis.labelCount
@@ -406,10 +407,56 @@ open class YAxisRenderer: NSObject, AxisRenderer
             // Ensure stops contains at least n elements.
             axis.entries.removeAll(keepingCapacity: true)
             axis.entries.reserveCapacity(labelCount)
-
-            let values = stride(from: yMin, to: Double(labelCount) * interval + yMin, by: interval)
-            axis.entries.append(contentsOf: values)
-
+            
+            if max > 0 && yMin < 0 && axis.drawZeroLineEnabled {
+                var muti = fabs(yMin) / fabs(yMax - 0)
+                muti = muti > 2 ? 2 : muti
+                //var bellowZeroCount = Int(muti * 10.0 / 4.0);
+                let space = labelCount <= 1 ? 1 : 1.0 / Double(labelCount - 1)
+                var bellowZeroCount = 0;
+                
+                let half = Double(labelCount - 1) * 0.5;
+                
+                if muti >= space && muti < 0.5 {
+                    bellowZeroCount = Int(half * 0.5);
+                } else if muti >= 0.5 && muti < 1.0  {
+                    bellowZeroCount = Int(half * 1.0);
+                } else if muti >= 1.0 && muti < 1.5  {
+                    bellowZeroCount = Int(half * 1.5);
+                } else if muti > 1.5 {
+                    bellowZeroCount = Int(half * 2);
+                }
+                
+                bellowZeroCount = bellowZeroCount > labelCount ? labelCount - 1 : bellowZeroCount;
+                
+                let range1 = fabs(yMin);
+                let interval1 = bellowZeroCount <= 1 ? range1 : Double(range1 / Double(bellowZeroCount))
+                if bellowZeroCount > 0 {
+                    let values1 = stride(from:yMin, to: Double(bellowZeroCount) * interval1 + yMin, by: interval1)
+                    axis.entries.append(contentsOf: values1)
+                } else {
+                    axis.entries.append(yMin)
+                }
+                
+                let overZeroCount = labelCount - bellowZeroCount;
+                
+                if overZeroCount > 1 {
+                    let range2 = fabs(yMax - 0);
+                    let interval2 = Double(range2) / Double(overZeroCount - 1)
+                    let values2 = stride(from:0, to: Double(overZeroCount) * interval2 + 0, by: interval2)
+                    axis.entries.append(contentsOf: values2)
+                } else {
+                    if !axis.entries.contains(0) {
+                        axis.entries.append(0)
+                    } else if !axis.entries.contains(yMin) {
+                        axis.entries.append(yMin)
+                    }
+                }
+            } else {
+                let values = stride(from: yMin, to: Double(labelCount) * interval + yMin, by: interval)
+                axis.entries.append(contentsOf: values)
+            }
+            
             n = labelCount
         }
         else
